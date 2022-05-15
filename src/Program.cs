@@ -1,4 +1,5 @@
 ﻿using System.Net.Sockets;
+using codecrafters_redis;
 
 using static System.Text.Encoding;
 
@@ -20,10 +21,15 @@ static async void HandleClient(Socket client) {
                 var n = await client.ReceiveAsync(buf, SocketFlags.None);
 
                 if (n > 0) {
+                    var cmd = UTF8.GetString(buf, index: 0, count: n);
+
                     Log(client, $"received {n} bytes:");
-                    Console.WriteLine(UTF8.GetString(buf, index: 0, count: n));
-                    _ = await client.SendAsync(UTF8.GetBytes("+PONG\r\n"), SocketFlags.None);
-                    Log(client, "sent PONG");
+                    Console.WriteLine(cmd);
+
+                    var reply = Parser.ParseCmd(cmd).ToCmd().Run().Render().ToString();
+
+                    _ = await client.SendAsync(UTF8.GetBytes(reply), SocketFlags.None);
+                    Log(client, $"sent: {reply}");
                 }
             }
         } catch (Exception ex) {
