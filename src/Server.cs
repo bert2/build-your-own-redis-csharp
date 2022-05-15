@@ -4,21 +4,38 @@ using static System.Text.Encoding;
 
 var server = TcpListener.Create(port: 6379);
 server.Start();
-Console.WriteLine("Listening...");
+LogServer("listening on port 6379");
 
-var client = await server.AcceptSocketAsync();
-Console.WriteLine("Client connected");
+while (true) {
+    var client = await server.AcceptSocketAsync();
+    Log(client, "connected");
+    HandleClient(client);
+}
 
-var buf = new byte[1024];
+static async void HandleClient(Socket client) {
+    while (client.Connected) {
+        try {
+            if (client.Available > 0) {
+                var buf = new byte[client.Available];
+                var n = await client.ReceiveAsync(buf, SocketFlags.None);
 
-while (client.Connected) {
-    var n = await client.ReceiveAsync(buf, SocketFlags.None);
-
-    if (n > 0) {
-        Console.WriteLine($"Received {n} bytes: {UTF8.GetString(buf, index: 0, count: n)}");
-        _ = await client.SendAsync(UTF8.GetBytes("+PONG\r\n"), SocketFlags.None);
-        Console.WriteLine("Sent PONG");
+                if (n > 0) {
+                    Log(client, $"received {n} bytes:");
+                    Console.WriteLine(UTF8.GetString(buf, index: 0, count: n));
+                    _ = await client.SendAsync(UTF8.GetBytes("+PONG\r\n"), SocketFlags.None);
+                    Log(client, "sent PONG");
+                }
+            }
+        } catch (Exception ex) {
+            Log(client, ex.ToString());
+        } finally {
+            await Task.Delay(100);
+        }
     }
 
-    await Task.Delay(100);
+    client.Dispose();
+    Log(client, "disconnected");
 }
+
+static void LogServer(string msg) => Console.WriteLine($"[S] {msg}");
+static void Log(Socket client, string msg) => Console.WriteLine($"[{client.GetHashCode()}] {msg}");
