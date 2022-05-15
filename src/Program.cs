@@ -26,7 +26,7 @@ static async void HandleClient(Socket client) {
                     Log(client, $"received {n} bytes:");
                     Console.WriteLine(cmd);
 
-                    var reply = Parser.ParseCmd(cmd).ToCmd().Run().Render().ToString();
+                    var reply = Parser.ParseArray(cmd).ToCmd().Run().Render().ToString();
 
                     _ = await client.SendAsync(UTF8.GetBytes(reply), SocketFlags.None);
                     Log(client, $"sent: {reply}");

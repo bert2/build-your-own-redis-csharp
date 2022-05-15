@@ -9,28 +9,30 @@ using static FParsec.CSharp.CharParsersCS;
 
 namespace codecrafters_redis;
 
-using RespTypeParser = FSharpFunc<CharStream<Unit>, Reply<IRespValue>>;
-
 public static class Parser {
-    public static Array ParseCmd(string input) => array.Run(input).GetResult();
+    public static Array ParseArray(string input) => array.Run(input).GetResult();
+
+    private static readonly FSharpFunc<CharStream<Unit>, Reply<Unit>> skipCrlf =
+        Skip('\r')
+        .AndR(Skip('\n'));
 
     private static readonly FSharpFunc<CharStream<Unit>, Reply<SimpleString>> simpleString =
         Skip('+')
         .And(ManyChars(NoneOf("\r\n")))
-        .And(Skip("\r\n"))
+        .And(skipCrlf)
         .Map(s => new SimpleString(s));
 
     private static readonly FSharpFunc<CharStream<Unit>, Reply<BulkString>> bulkString =
         Skip('$')
         .And(Int)
-        .And(Skip("\r\n"))
+        .And(skipCrlf)
         .And(len => len < 0 ? Return((string?)null) : BulkStringContent(len).Map(s => (string?)s))
         .Map(s => new BulkString(s));
 
     private static readonly FSharpFunc<CharStream<Unit>, Reply<Array>> array =
         Skip('*')
         .And(Int)
-        .And(Skip("\r\n"))
+        .And(skipCrlf)
         .And(len => len < 0 ? Return((IRespValue[]?)null) : ArrayContent(len).Map(xs => (IRespValue[]?)xs))
         .Map(xs => new Array(xs));
 
@@ -42,7 +44,7 @@ public static class Parser {
 
     private static FSharpFunc<CharStream<Unit>, Reply<string>> BulkStringContent(int len) =>
         AnyString(len)
-        .And(Skip("\r\n"));
+        .And(skipCrlf);
 
     private static FSharpFunc<CharStream<Unit>, Reply<IRespValue[]>> ArrayContent(int len) =>
        Array(len, respValue);
