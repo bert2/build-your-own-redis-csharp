@@ -17,14 +17,14 @@ public static class ArrayExt {
         .As<BulkString>()?
         .Value?
         .ToUpper()
-        ?? throw new InvalidOperationException($"invalid command: {cmd.Render()}");
+        ?? throw new InvalidOperationException($"invalid command: {cmd.RenderForDisplay()}");
 
     public static string Arg(this Array cmd, int i) => cmd
         .Items?
         .ElementAtOrDefault(i + 1)
         .As<BulkString>()?
         .Value
-        ?? throw new InvalidOperationException($"invalid command: {cmd.Render()}");
+        ?? throw new InvalidOperationException($"invalid command: {cmd.RenderForDisplay()}");
 }
 
 public record Ping : ICmd {

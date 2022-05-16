@@ -3,6 +3,12 @@ using codecrafters_redis;
 
 using static System.Text.Encoding;
 
+try {
+    var reply = Parser.ParseArray("*2\r\n$4\r\necho\r\n$3\r\nfoo\r\n").ToCmd().Run().Render().ToString();
+} catch (Exception ex) {
+    Console.WriteLine(ex);
+}
+
 var server = TcpListener.Create(port: 6379);
 server.Start();
 LogServer("listening on port 6379");
