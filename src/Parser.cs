@@ -10,42 +10,23 @@ using static FParsec.CSharp.CharParsersCS;
 namespace codecrafters_redis;
 
 public static class Parser {
-    public static Array ParseArray(string input) => array.And(EOF).Run(input).GetResult();
-
-    private static readonly FSharpFunc<CharStream<Unit>, Reply<SimpleString>> simpleString =
-        Skip('+')
-        .And(ManyChars(NoneOf("\r\n")))
-        .And(SkipNewline)
-        .Map(s => new SimpleString(s));
+    public static Array<BulkString> ParseCmd(string input) => cmdArray.And(EOF).Run(input).GetResult();
 
     private static readonly FSharpFunc<CharStream<Unit>, Reply<BulkString>> bulkString =
         Skip('$')
         .And(Int)
         .And(SkipNewline)
-        .And(len => len < 0 ? Return((string?)null) : BulkStringContent(len).Map(s => (string?)s))
+        .And(len => len < 0
+            ? Return<string?>(null)
+            : AnyString(len).And(SkipNewline).Map(s => (string?)s))
         .Map(s => new BulkString(s));
 
-    private static readonly FSharpFunc<CharStream<Unit>, Reply<Array>> array =
+    private static readonly FSharpFunc<CharStream<Unit>, Reply<Array<BulkString>>> cmdArray =
         Skip('*')
         .And(Int)
         .And(SkipNewline)
-        .And(len => len switch {
-            < 0 => Return((IRespValue[]?)null),
-            0   => Return((IRespValue[]?)System.Array.Empty<IRespValue>()),
-            _   => ArrayContent(len).Map(xs => (IRespValue[]?)xs)
-        }).Debug(cs => { }, (cs, r) => { })
-        .Map(xs => new Array(xs));
-
-    private static readonly FSharpFunc<CharStream<Unit>, Reply<IRespValue>> respValue =
-        Choice(
-            simpleString.Map(x => (IRespValue)x),
-            bulkString.Map(x => (IRespValue)x),
-            array.Map(x => (IRespValue)x));
-
-    private static FSharpFunc<CharStream<Unit>, Reply<string>> BulkStringContent(int len) =>
-        AnyString(len)
-        .And(SkipNewline);
-
-    private static FSharpFunc<CharStream<Unit>, Reply<IRespValue[]>> ArrayContent(int len) =>
-       Array(len, respValue);
+        .And(len => len < 1
+            ? Fail<BulkString[]>("RESP command arrays must not be empty")
+            : Array(len, bulkString))
+        .Map(xs => new Array<BulkString>(xs));
 }

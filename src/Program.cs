@@ -3,11 +3,15 @@ using codecrafters_redis;
 
 using static System.Text.Encoding;
 
-try {
-    var reply = Parser.ParseArray("*2\r\n$4\r\necho\r\n$3\r\nfoo\r\n").ToCmd().Run().Render().ToString();
-} catch (Exception ex) {
-    Console.WriteLine(ex);
-}
+//try {
+//    var reply = Parser.ParseCmd("*2\r\n$4\r\necho\r\n$3\r\nfoo\r\n")
+//        .ToCmd().Run()
+//        .RenderForDisplay().ToString();
+//    Console.WriteLine(reply);
+//} catch (Exception ex) {
+//    Console.WriteLine(ex);
+//}
+//return;
 
 var server = TcpListener.Create(port: 6379);
 server.Start();
@@ -32,7 +36,7 @@ static async void HandleClient(Socket client) {
                     Log(client, $"received {n} bytes:");
                     Console.WriteLine(cmd);
 
-                    var reply = Parser.ParseArray(cmd).ToCmd().Run().Render().ToString();
+                    var reply = Parser.ParseCmd(cmd).ToCmd().Run().Render().ToString();
 
                     _ = await client.SendAsync(UTF8.GetBytes(reply), SocketFlags.None);
                     Log(client, $"sent: {reply}");
