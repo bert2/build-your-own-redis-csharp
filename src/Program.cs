@@ -32,9 +32,7 @@ static async void HandleClient(Socket client) {
 
                 if (n > 0) {
                     var cmd = UTF8.GetString(buf, index: 0, count: n);
-
-                    Log(client, $"received {n} bytes:");
-                    Console.WriteLine(cmd);
+                    Log(client, $"received {n} bytes: {cmd}");
 
                     var reply = Parser.ParseCmd(cmd).ToCmd().Run().Render().ToString();
 
@@ -53,5 +51,6 @@ static async void HandleClient(Socket client) {
     Log(client, "disconnected");
 }
 
-static void LogServer(string msg) => Console.WriteLine($"[S] {msg}");
-static void Log(Socket client, string msg) => Console.WriteLine($"[{client.GetHashCode()}] {msg}");
+static void LogServer(string msg) => Console.WriteLine($"[S] {EscapeCrlf(msg)}");
+static void Log(Socket client, string msg) => Console.WriteLine($"[{client.GetHashCode()}] {EscapeCrlf(msg)}");
+static string EscapeCrlf(string s) => s.Replace("\r\n", "\\r\\n");
