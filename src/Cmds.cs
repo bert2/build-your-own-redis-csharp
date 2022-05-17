@@ -65,11 +65,11 @@ public record Set(string Key, string Value, long? Px) : ICmd {
 public record Get(string Key) : ICmd {
     public IRespValue Run(IDictionary<string, (string value, DateTime? expiresOn)> store) {
         if (store.TryGetValue(Key, out var v) && (!v.expiresOn.HasValue || v.expiresOn >= DateTime.Now)) {
-            if (v.expiresOn.HasValue) Console.WriteLine($"******** expires {v.expiresOn.Value.Ticks} {v.expiresOn.Value:O}");
+            if (v.expiresOn.HasValue) Console.WriteLine($"******** expires {v.expiresOn.Value:O}");
             Console.WriteLine($"******** now its {DateTime.Now:O}");
             return new BulkString(v.value);
         } else {
-            if (v.expiresOn.HasValue) Console.WriteLine($"******** expires {v.expiresOn.Value.Ticks} {v.expiresOn.Value:O}");
+            if (v.expiresOn.HasValue) Console.WriteLine($"******** expires {v.expiresOn.Value:O}");
             Console.WriteLine($"******** now its {DateTime.Now:O}");
             return BulkString.Nil;
         }
