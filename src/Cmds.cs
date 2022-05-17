@@ -69,6 +69,8 @@ public record Get(string Key) : ICmd {
             Console.WriteLine($"******** now its {DateTime.Now.Ticks} {DateTime.Now:O}");
             return new BulkString(v.value);
         } else {
+            if (v.expiresOn.HasValue) Console.WriteLine($"******** expires {v.expiresOn.Value.Ticks} {v.expiresOn.Value:O}");
+            Console.WriteLine($"******** now its {DateTime.Now.Ticks} {DateTime.Now:O}");
             return BulkString.Nil;
         }
     }
