@@ -26,7 +26,7 @@ while (true) {
     HandleClient(client);
 }
 
-static async void HandleClient(Socket client) {
+async void HandleClient(Socket client) {
     while (client.Connected) {
         try {
             if (client.Available > 0) {
