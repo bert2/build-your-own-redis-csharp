@@ -1,4 +1,5 @@
-﻿using System.Net.Sockets;
+﻿using System.Collections.Concurrent;
+using System.Net.Sockets;
 using codecrafters_redis;
 
 using static System.Text.Encoding;
@@ -12,6 +13,8 @@ using static System.Text.Encoding;
 //    Console.WriteLine(ex);
 //}
 //return;
+
+var store = new ConcurrentDictionary<string, string>();
 
 var server = TcpListener.Create(port: 6379);
 server.Start();
@@ -34,7 +37,7 @@ static async void HandleClient(Socket client) {
                     var cmd = UTF8.GetString(buf, index: 0, count: n);
                     Log(client, $"received {n} bytes: {cmd}");
 
-                    var reply = Parser.ParseCmd(cmd).ToCmd().Run().Render().ToString();
+                    var reply = Parser.ParseCmd(cmd).ToCmd().Run(store).Render().ToString();
 
                     _ = await client.SendAsync(UTF8.GetBytes(reply), SocketFlags.None);
                     Log(client, $"sent: {reply}");

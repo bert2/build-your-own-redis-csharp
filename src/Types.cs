@@ -17,6 +17,7 @@ public record SimpleString(string Value) : IRespValue {
 }
 
 public record BulkString(string? Value) : IRespValue {
+    public static readonly BulkString Nil = new((string?)null);
     public StringBuilder Render() => Value is null
         ? new StringBuilder("$-1\r\n")
         : new StringBuilder("$").Append(Value.Length).Append("\r\n").Append(Value).Append("\r\n");
@@ -24,6 +25,7 @@ public record BulkString(string? Value) : IRespValue {
 
 public record Array<T>(T[]? Items) : IRespValue
     where T : IRespValue {
+    public static readonly Array<T> Nil = new((T[]?)null);
     public StringBuilder Render() => Items is null
         ? new StringBuilder("*-1\r\n")
         : new StringBuilder("*").Append(Items.Length).Append("\r\n").Append(Render(Items));
