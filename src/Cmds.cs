@@ -14,27 +14,24 @@ public static class ArrayExt {
     };
 
     public static string Name(this Array<BulkString> cmd) => cmd
-        .Items?
-        .FirstOrDefault()?
+        .Items?[0]
         .Value?
         .ToUpper()
         ?? throw new InvalidOperationException($"invalid command: {cmd.RenderForDisplay()}");
 
     public static string Arg(this Array<BulkString> cmd, int i) => cmd
-        .Items?
-        .ElementAtOrDefault(i + 1)?
+        .Items?[i + 1]
         .Value
         ?? throw new InvalidOperationException($"expected at least {i + 1} arguments: {cmd.RenderForDisplay()}");
 
     public static string? Opt(this Array<BulkString> cmd, string opt) {
-        if (cmd.Items is null) return null;
+        //if (cmd.Items is null) return null;
 
-        var optIdx = Array.FindIndex(cmd.Items, x => string.Equals(x.Value, opt, StringComparison.OrdinalIgnoreCase));
-        if (optIdx == -1) return null;
-
+        //var optIdx = Array.FindIndex(cmd.Items, x => string.Equals(x.Value, opt, StringComparison.OrdinalIgnoreCase));
+        //if (optIdx == -1) return null;
+        if (cmd.Items!.Length < 5) return null;
         return cmd
-            .Items?
-            .ElementAtOrDefault(optIdx + 1)?
+            .Items?[4]
             .Value
             ?? throw new InvalidOperationException($"expected value for option '{opt}': {cmd.RenderForDisplay()}");
     }
