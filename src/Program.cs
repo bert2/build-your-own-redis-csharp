@@ -35,12 +35,12 @@ async void HandleClient(Socket client) {
 
                 if (n > 0) {
                     var cmd = UTF8.GetString(buf, index: 0, count: n);
-                    Log(client, $"     <{DateTime.Now.Ticks} {DateTime.Now:O}> received {n} bytes: {cmd}");
+                    Log(client, $"     <{DateTime.Now:O}> received {n} bytes: {cmd}");
 
                     var reply = Parser.ParseCmd(cmd).ToCmd().Run(store).Render().ToString();
 
                     _ = await client.SendAsync(UTF8.GetBytes(reply), SocketFlags.None);
-                    Log(client, $"sent: {reply}");
+                    Log(client, $"     <{DateTime.Now:O}> sent: {reply}");
                 }
             }
         } catch (Exception ex) {
