@@ -35,7 +35,7 @@ async void HandleClient(Socket client) {
 
                 if (n > 0) {
                     var cmd = UTF8.GetString(buf, index: 0, count: n);
-                    Log(client, $"     <{DateTime.Now.Ticks}> received {n} bytes: {cmd}");
+                    Log(client, $"     <{DateTime.Now.Ticks} {DateTime.Now:O}> received {n} bytes: {cmd}");
 
                     var reply = Parser.ParseCmd(cmd).ToCmd().Run(store).Render().ToString();
 
