@@ -14,7 +14,7 @@ using static System.Text.Encoding;
 //}
 //return;
 
-var store = new ConcurrentDictionary<string, string>();
+var store = new ConcurrentDictionary<string, (string value, DateTime? expiresOn)>();
 
 var server = TcpListener.Create(port: 6379);
 server.Start();
