@@ -6,7 +6,7 @@ using static System.Text.Encoding;
 
 //try {
 //    var reply = Parser.ParseCmd("*2\r\n$4\r\necho\r\n$3\r\nfoo\r\n")
-//        .ToCmd().Run()
+//        //.ToCmd().Run()
 //        .RenderForDisplay().ToString();
 //    Console.WriteLine(reply);
 //} catch (Exception ex) {
