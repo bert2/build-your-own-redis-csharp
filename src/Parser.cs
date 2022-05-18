@@ -37,6 +37,11 @@ public static class Parser {
 [SuppressMessage("Roslynator", "RCS1194:Implement exception constructors.")]
 public class ParseException : Exception {
     public ParseException(string expected, int at, ReadOnlySpan<char> input)
-        : base($"Expected {expected} at column {at} of '{EscapeCrlf(input)}'.") { }
+        : base($"Expected {expected}, but got {EscapeCrlf(input[at])} at column {at} of '{EscapeCrlf(input)}'.") { }
     private static string EscapeCrlf(ReadOnlySpan<char> s) => s.ToString().Replace("\r\n", "\\r\\n");
+    private static string EscapeCrlf(char c) => c switch {
+        '\r' => "\\r",
+        '\n' => "\\n",
+        _ => c.ToString()
+    };
 }

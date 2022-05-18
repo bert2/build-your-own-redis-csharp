@@ -45,8 +45,6 @@ async void HandleClient(Socket client) {
             }
         } catch (Exception ex) {
             Log(client, ex.ToString());
-        } finally {
-            await Task.Delay(100);
         }
     }
 
