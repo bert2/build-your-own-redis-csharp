@@ -4,16 +4,6 @@ using codecrafters_redis;
 
 using static System.Text.Encoding;
 
-//try {
-//    var reply = Parser.ParseCmd("*2\r\n$4\r\necho\r\n$3\r\nfoo\r\n")
-//        //.ToCmd().Run()
-//        .RenderForDisplay().ToString();
-//    Console.WriteLine(reply);
-//} catch (Exception ex) {
-//    Console.WriteLine(ex);
-//}
-//return;
-
 var store = new ConcurrentDictionary<string, (string value, DateTime? expiresOn)>();
 
 var server = TcpListener.Create(port: 6379);
@@ -35,25 +25,22 @@ async void HandleClient(Socket client) {
 
                 if (n > 0) {
                     var cmd = UTF8.GetString(buf, index: 0, count: n);
-                    Log(client, $"     <{DateTime.Now:O}> received {n} bytes: {cmd}");
+                    Log(client, $"received {n} bytes: {cmd}");
 
                     var reply = Parser.ParseCmd(cmd).ToCmd().Run(store).Render().ToString();
 
                     _ = await client.SendAsync(UTF8.GetBytes(reply), SocketFlags.None);
-                    Log(client, $"     <{DateTime.Now:O}> sent: {reply}");
+                    Log(client, $"sent: {reply}");
                 }
             }
         } catch (Exception ex) {
             Log(client, ex.ToString());
         } finally {
-            await Task.Delay(1);
+            await Task.Delay(0);
         }
     }
-
-    client.Dispose();
-    Log(client, "disconnected");
 }
 
-static void LogServer(string msg) => Console.WriteLine($"[S] {EscapeCrlf(msg)}");
+static void LogServer(string msg) => Console.WriteLine($"[S] {msg}");
 static void Log(Socket client, string msg) => Console.WriteLine($"[{client.GetHashCode()}] {EscapeCrlf(msg)}");
 static string EscapeCrlf(string s) => s.Replace("\r\n", "\\r\\n");

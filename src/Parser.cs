@@ -9,10 +9,10 @@ public static class Parser {
         if (input[2] != '\r') throw new ParseException(expected: "\\r", at: 2, input);
         if (input[3] != '\n') throw new ParseException(expected: "\\n", at: 3, input);
 
-        var n = input[1] - '0';
-        var args = new BulkString[n];
+        var len = input[1] - '0';
+        var args = new BulkString[len];
 
-        for (int i = 0, col = 4; i < n; i++) {
+        for (int i = 0, col = 4; i < len; i++) {
             (args[i], var consumed) = ParseBulkString(input[col..]);
             col += consumed;
         }
@@ -28,9 +28,9 @@ public static class Parser {
 
         var len = input[1] - '0';
         var end = 4 + len;
-        var v = input[4..end];
+        var val = input[4..end];
 
-        return (new BulkString(v.ToString()), 4 + len + 2);
+        return (new BulkString(val.ToString()), 4 + len + 2);
     }
 }
 
